@@ -1,0 +1,46 @@
+version: "3" 
+
+services: 
+  api:
+    build: .
+    container_name:  kouiz-back
+    hostname: kouiz-back
+    restart:  always
+    ports:
+      - 8000:8000
+    volumes:
+      - /home/toms/kouiz-back/:/app
+      - /home/toms/kouiz-back/.env:/app/.env
+
+  db: 
+    image: mariadb:10.3.9
+    container_name: db-kouiz
+    hostname: db-kouiz
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - /home/toms/db-kouiz:/var/lib/mysql 
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    hostname: phpmyadmin
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=${DB_HOST}
+      - PMA_PORT=${DB_PORT}
+      # - PMA_USER=${DB_USERNAME}
+      # - PMA_PASSWORD=${DB_PASSWORD}
+
+# volumes:
+#   api: 
