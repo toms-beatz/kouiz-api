@@ -6,10 +6,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
+
+
+    // const ROLE_SUPERADMIN = 'superadmin';
+    // const ROLE_ADMIN = 'admin';
+    // const ROLE_NORMAL = 'normal';
+
+    // public function isAdmin() {
+    //     return $this->role === self::ROLE_ADMIN || $this->role === self::ROLE_SUPERADMIN;
+    // }
+
+    // public function isSuperAdmin() {
+    //     return $this->role === self::ROLE_SUPERADMIN;
+    // }
+
 
     /**
      * The attributes that are mass assignable.
@@ -17,9 +32,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'birthdate',
         'email',
         'password',
+        'role'
     ];
 
     /**
