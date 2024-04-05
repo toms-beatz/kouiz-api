@@ -48,6 +48,7 @@ class RegisterUser extends FormRequest
             'username.string' => 'Le nom d\'utilisateur doit être une chaîne de caractères',
             'username.max' => 'Le nom d\'utilisateur ne doit pas dépasser 255 caractères',
             'username.unique' => 'Le nom d\'utilisateur est déjà utilisé',
+            
             'birthdate.required' => 'La date de naissance est requise',
             'birthdate.date' => 'La date de naissance doit être au format date (YYYY-MM-DD)',
             'email.required' => 'L\'adresse email est requise',

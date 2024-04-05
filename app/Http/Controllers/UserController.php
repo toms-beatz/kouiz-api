@@ -6,6 +6,7 @@ use Hash;
 use App\Http\Requests\RegisterUser;
 use App\Http\Requests\LoginUser;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -57,27 +58,143 @@ class UserController extends Controller
                 'success' => false,
                 'status_code' => 401,
                 'error' => true,
-                'message' => 'Identifiants incorrects',
+                'message' => 'Mot de passe incorrect',
             ], 401, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
-    public function logout()
+    public function profile($id)
     {
-        if (auth()->user()) {
-            auth()->user()->tokens()->delete();
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-                'message' => 'Déconnexion réussie',
-            ], 200, [], JSON_UNESCAPED_UNICODE);
-        } else {
+        $user = User::find($id);
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'status_code' => 401,
-                'message' => 'Non authentifié',
-            ], 401, [], JSON_UNESCAPED_UNICODE);
-
+                'status_code' => 404,
+                'message' => 'Utilisateur non trouvé',
+            ], 404, [], JSON_UNESCAPED_UNICODE);
         }
+
+        $currentUser = auth()->user();
+
+        if ($currentUser->id != $user->id && $currentUser->role != 'superadmin') {
+            return response()->json([
+                'success' => false,
+                'status_code' => 403,
+                'message' => 'Non autorisé',
+            ], 403, [], JSON_UNESCAPED_UNICODE);
+        }
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'data' => $user,
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 404,
+                'message' => 'Utilisateur non trouvé',
+            ], 404, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $currentUser = auth()->user();
+
+        if ($currentUser->id != $user->id && $currentUser->role != 'superadmin') {
+            return response()->json([
+                'success' => false,
+                'status_code' => 403,
+                'message' => 'Non autorisé',
+            ], 403, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $user->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Utilisateur mis à jour',
+            'data' => $user,
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function logout($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 404,
+                'message' => 'Utilisateur non trouvé',
+            ], 404, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $currentUser = auth()->user();
+
+        if ($currentUser->id != $user->id && $currentUser->role != 'superadmin') {
+            return response()->json([
+                'success' => false,
+                'status_code' => 403,
+                'message' => 'Non autorisé',
+            ], 403, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $user->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Déconnexion réussie',
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+
+    }
+
+    public function delete($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 404,
+                'message' => 'Utilisateur non trouvé',
+            ], 404, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $currentUser = auth()->user();
+
+        if ($currentUser->id != $user->id && $currentUser->role != 'superadmin') {
+            return response()->json([
+                'success' => false,
+                'status_code' => 403,
+                'message' => 'Non autorisé',
+            ], 403, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Utilisateur supprimé',
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function index()
+    {
+        $users = User::all();
+
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'data' => $users,
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
